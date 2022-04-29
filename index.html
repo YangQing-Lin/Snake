@@ -30,6 +30,10 @@
         }
 
         .cover {
+            background: cyan !important;
+        }
+
+        .food {
             background: brown !important;
         }
     </style>
@@ -39,7 +43,7 @@
     3. 让蛇在一个方向动起来
     4. 让蛇在四个方向动起来
     5. 控制蛇在我们要的方向跑起来
-    6. 在活动区域内生成一个食物
+    6. 生成食物并且吃了能变长
     -->
 
     <div id="snakeBoard">
@@ -57,6 +61,7 @@
                 length: 5,
                 snake: [],
                 direction: "up",
+                food: {},
             },
             mounted: function () {
                 // 初始化一条蛇
@@ -67,6 +72,7 @@
 
                 this.render();
                 this.start();
+                this.generateFood();
 
                 // 添加键盘监听事件
                 window.addEventListener("keydown", (e) => {
@@ -107,6 +113,7 @@
                     setInterval(() => {
                         let nextHead = {};
                         let head = this.snake[0];
+                        // 计算当前方向的下一个蛇头位置
                         switch (this.direction) {
                             case "up": {
                                 // 计算下一步蛇头的位置
@@ -125,14 +132,25 @@
                         }
                         // 把新的头加到数组最前面
                         this.snake.splice(0, 0, nextHead);
-                        // 移除尾巴并清空尾巴的样式
-                        let tail = this.snake.pop();
-                        this.$refs.span[tail.y * this.size + tail.x].classList.remove('cover');
+                        // 蛇头和食物的碰撞检测
+                        if (nextHead.x === this.food.x && nextHead.y === this.food.y) {
+                            this.$refs.span[this.food.y * this.size + this.food.x].classList.remove('food');
+                            this.generateFood();
+                        } else {
+                            // 移除尾巴并清空尾巴的样式
+                            let tail = this.snake.pop();
+                            this.$refs.span[tail.y * this.size + tail.x].classList.remove('cover');
+                        }
 
                         // 重新渲染
                         this.render();
-                    }, 300);
+                    }, 200);
 
+                },
+                // 生成食物
+                generateFood: function () {
+                    this.food = { x: Math.floor(Math.random() * this.size), y: Math.floor(Math.random() * this.size) };
+                    this.$refs.span[this.food.y * this.size + this.food.x].classList.add('food');
                 }
             }
         });
