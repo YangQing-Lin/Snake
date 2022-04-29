@@ -25,8 +25,8 @@
             display: inline-block;
             background-color: gray;
             border: 1px solid green;
-            width: 40px;
-            height: 40px;
+            width: 20px;
+            height: 20px;
         }
 
         .cover {
@@ -57,8 +57,9 @@
         new Vue({
             el: "#snakeBoard",
             data: {
-                size: 10,
+                size: 20,
                 length: 5,
+                timedelta: 150,
                 snake: [],
                 direction: "up",
                 food: {},
@@ -130,11 +131,14 @@
                                 nextHead = { x: head.x + 1 > this.size - 1 ? 0 : head.x + 1, y: head.y };
                             } break;
                         }
+
                         // 把新的头加到数组最前面
                         this.snake.splice(0, 0, nextHead);
+
                         // 蛇头和食物的碰撞检测
                         if (nextHead.x === this.food.x && nextHead.y === this.food.y) {
                             this.$refs.span[this.food.y * this.size + this.food.x].classList.remove('food');
+                            this.length += 1;
                             this.generateFood();
                         } else {
                             // 移除尾巴并清空尾巴的样式
@@ -142,14 +146,34 @@
                             this.$refs.span[tail.y * this.size + tail.x].classList.remove('cover');
                         }
 
+                        // 自动进食的AI
+                        if (nextHead.x > this.food.x) {
+                            this.direction = "left";
+                        } else if (nextHead.x < this.food.x) {
+                            this.direction = "right";
+                        } else if (nextHead.y > this.food.y) {
+                            this.direction = "up";
+                        } else if (nextHead.y < this.food.y) {
+                            this.direction = "down";
+                        }
+
                         // 重新渲染
                         this.render();
-                    }, 200);
+                    }, this.timedelta);
 
                 },
-                // 生成食物
+                // 生成食物（不会生成在蛇身上）
                 generateFood: function () {
-                    this.food = { x: Math.floor(Math.random() * this.size), y: Math.floor(Math.random() * this.size) };
+                    let flag = true;
+                    while (flag) {
+                        flag = false;
+                        this.food = { x: Math.floor(Math.random() * this.size), y: Math.floor(Math.random() * this.size) };
+                        for (let body of this.snake) {
+                            if (body.x === this.food.x && body.y === this.food.y) {
+                                flag = true;
+                            }
+                        }
+                    }
                     this.$refs.span[this.food.y * this.size + this.food.x].classList.add('food');
                 }
             }
