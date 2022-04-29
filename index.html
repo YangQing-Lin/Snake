@@ -61,7 +61,7 @@
     let AI = new Vue({
       el: "#snakeBoard",
       data: {
-        size: 20,
+        size: 21,
         length: 5,
         speed: 150,
         timedelta: 5,
@@ -150,16 +150,28 @@
             this.$refs.span[tail.y * this.size + tail.x].classList.remove('cover');
           }
 
-          // 自动进食的AI
-          if (nextHead.x > this.food.x) {
-            this.direction = "left";
-          } else if (nextHead.x < this.food.x) {
-            this.direction = "right";
-          } else if (nextHead.y > this.food.y) {
-            this.direction = "up";
-          } else if (nextHead.y < this.food.y) {
-            this.direction = "down";
+          // 自动进食AI（每次选取最优路径）
+          let foods = [];
+          let minLength = 100000;
+          let minLengthFood = {};
+          foods.push({ x: this.food.x, y: this.food.y });
+          foods.push({ x: this.food.x + this.size, y: this.food.y });
+          foods.push({ x: this.food.x - this.size, y: this.food.y });
+          foods.push({ x: this.food.x, y: this.food.y + this.size });
+          foods.push({ x: this.food.x, y: this.food.y - this.size });
+          for (let virtualFood of foods) {
+            let tmpLength = Math.pow(virtualFood.x - nextHead.x, 2) + Math.pow(virtualFood.y - nextHead.y, 2)
+            if (minLength > tmpLength) {
+              minLength = tmpLength;
+              minLengthFood = { x: virtualFood.x, y: virtualFood.y };
+            }
           }
+          if (minLengthFood.x > nextHead.x) this.direction = "right";
+          else if (minLengthFood.x < nextHead.x) this.direction = "left";
+          else if (minLengthFood.y > nextHead.y) this.direction = "down";
+          else if (minLengthFood.y < nextHead.y) this.direction = "up";
+
+
 
           // 重新渲染
           this.render();
