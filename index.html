@@ -157,7 +157,9 @@
           // 重新渲染
           this.render();
 
+          // 清除上一帧
           clearInterval(this.set1);
+          // 开启下一帧并重设速度
           this.set1 = setInterval(this.start, this.speed);
         },
         // 生成食物（不会生成在蛇身上）
