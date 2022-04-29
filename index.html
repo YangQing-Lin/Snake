@@ -124,22 +124,14 @@
                 start() {
                     let nextHead = {};
                     let head = this.snake[0];
-                    // 计算当前方向的下一个蛇头位置
-                    switch (this.direction) {
-                        case "up": {
-                            // 计算下一步蛇头的位置
-                            nextHead = { x: head.x, y: head.y - 1 < 0 ? this.size - 1 : head.y - 1 };
-                        } break;
-                        case "down": {
-                            nextHead = { x: head.x, y: head.y + 1 > this.size - 1 ? 0 : head.y + 1 };
-                        } break;
-                        case "left": {
-                            nextHead = { x: head.x - 1 < 0 ? this.size - 1 : head.x - 1, y: head.y };
-                        } break;
-                        case "right": {
-                            nextHead = { x: head.x + 1 > this.size - 1 ? 0 : head.x + 1, y: head.y };
-                        } break;
-                    }
+                    let x = head.x;
+                    let y = head.y;
+                    // 计算当前方向的下一个蛇头位置（可以穿墙，简化了代码量）
+                    if (this.direction === "up") y -= 1;
+                    else if (this.direction === "down") y += 1;
+                    else if (this.direction === "left") x -= 1;
+                    else if (this.direction === "right") x += 1;
+                    nextHead = { x: (x + this.size) % this.size, y: (y + this.size) % this.size };
 
                     // 把新的头加到数组最前面
                     this.snake.splice(0, 0, nextHead);
