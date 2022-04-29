@@ -55,9 +55,9 @@
       data: {
         size: 21,
         length: 5,
-        speed: 150,
-        timedelta: 5,
-        fastest: 50,
+        speed: 150,  // 初始速度（循环函数等待时间，越小速度越快）
+        fastest: 50,  // 最快速度（最小循环间隔）
+        timedelta: 5,  // 每次吃东西速度增加值
         snake: [],
         direction: "up",
         food: {},
@@ -70,32 +70,21 @@
         }
 
         this.render();
+        // 开启循环
         this.set1 = setInterval(this.start, this.speed);
+        // 生成食物
         this.generateFood();
 
         // 添加键盘监听事件
         window.addEventListener("keydown", (e) => {
-          switch (e.key) {
-            case "ArrowUp": {
-              if (this.direction != "down") {
-                this.direction = "up";
-              }
-            } break;
-            case "ArrowDown": {
-              if (this.direction != "up") {
-                this.direction = "down";
-              }
-            } break;
-            case "ArrowLeft": {
-              if (this.direction != "right") {
-                this.direction = "left";
-              }
-            } break;
-            case "ArrowRight": {
-              if (this.direction != "left") {
-                this.direction = "right";
-              }
-            } break;
+          if (e.key == "ArrowUp" && this.direction != "down") {
+            this.direction = "up";
+          } else if (e.key == "ArrowDown" && this.direction != "up") {
+            this.direction = "down";
+          } else if (e.key == "ArrowLeft" && this.direction != "right") {
+            this.direction = "left";
+          } else if (e.key == "ArrowRight" && this.direction != "left") {
+            this.direction = "right";
           }
         });
       },
@@ -142,7 +131,7 @@
             this.$refs.span[tail.y * this.size + tail.x].classList.remove('cover');
           }
 
-          // 自动进食AI（每次选取最优路径）
+          // 自动觅食AI（每次选取最优路径）
           let foods = [];
           let minLength = 100000;
           let minLengthFood = {};
