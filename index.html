@@ -67,14 +67,39 @@
 
                 this.render();
                 this.start();
+
+                // 添加键盘监听事件
+                window.addEventListener("keydown", (e) => {
+                    switch (e.key) {
+                        case "ArrowUp": {
+                            if (this.direction != "down") {
+                                this.direction = "up";
+                            }
+                        } break;
+                        case "ArrowDown": {
+                            if (this.direction != "up") {
+                                this.direction = "down";
+                            }
+                        } break;
+                        case "ArrowLeft": {
+                            if (this.direction != "right") {
+                                this.direction = "left";
+                            }
+                        } break;
+                        case "ArrowRight": {
+                            if (this.direction != "left") {
+                                this.direction = "right";
+                            }
+                        } break;
+                    }
+                });
             },
             methods: {
                 render: function () {
                     // 渲染蛇身
                     for (let body of this.snake) {
-                        let location = body.y * this.size + body.x;
                         // 给蛇的身体加上“cover”类属性
-                        this.$refs.span[location].classList.add('cover');
+                        this.$refs.span[body.y * this.size + body.x].classList.add('cover');
                     }
                 },
                 start: function () {
@@ -89,7 +114,7 @@
 
                             } break;
                             case "down": {
-                                nextHead = { x: head.x, y: head.y + 1 > this.size + 1 ? 0 : head.y + 1 };
+                                nextHead = { x: head.x, y: head.y + 1 > this.size - 1 ? 0 : head.y + 1 };
                             } break;
                             case "left": {
                                 nextHead = { x: head.x - 1 < 0 ? this.size - 1 : head.x - 1, y: head.y };
