@@ -56,7 +56,7 @@
                 size: 10,
                 length: 5,
                 snake: [],
-                direction: 'up',
+                direction: "up",
             },
             mounted: function () {
                 // 初始化一条蛇
@@ -66,7 +66,6 @@
                 }
 
                 this.render();
-
                 this.start();
             },
             methods: {
@@ -81,19 +80,32 @@
                 start: function () {
                     // 定时任务
                     setInterval(() => {
+                        let nextHead = {};
+                        let head = this.snake[0];
                         switch (this.direction) {
-                            case 'up': {
+                            case "up": {
                                 // 计算下一步蛇头的位置
-                                let nextHead = { x: this.snake[0].x, y: this.snake[0].y - 1 < 0 ? this.size - 1 : this.snake[0].y - 1 };
-                                // 把新的头加到数组最前面
-                                this.snake.splice(0, 0, nextHead);
-                                let tail = this.snake.pop();
-                                this.$refs.span[tail.y * this.size + tail.x].classList.remove('cover');
+                                nextHead = { x: head.x, y: head.y - 1 < 0 ? this.size - 1 : head.y - 1 };
 
-                                // 重新渲染
-                                this.render();
-                            }
+                            } break;
+                            case "down": {
+                                nextHead = { x: head.x, y: head.y + 1 > this.size + 1 ? 0 : head.y + 1 };
+                            } break;
+                            case "left": {
+                                nextHead = { x: head.x - 1 < 0 ? this.size - 1 : head.x - 1, y: head.y };
+                            } break;
+                            case "right": {
+                                nextHead = { x: head.x + 1 > this.size - 1 ? 0 : head.x + 1, y: head.y };
+                            } break;
                         }
+                        // 把新的头加到数组最前面
+                        this.snake.splice(0, 0, nextHead);
+                        // 移除尾巴并清空尾巴的样式
+                        let tail = this.snake.pop();
+                        this.$refs.span[tail.y * this.size + tail.x].classList.remove('cover');
+
+                        // 重新渲染
+                        this.render();
                     }, 300);
 
                 }
