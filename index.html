@@ -54,21 +54,48 @@
             el: "#snakeBoard",
             data: {
                 size: 10,
+                length: 5,
                 snake: [],
+                direction: 'up',
             },
             mounted: function () {
-                // 初始化一条蛇（4节）
+                // 初始化一条蛇
                 let half = Math.floor(this.size / 2);
-                this.snake.push({ x: half, y: half + 1 });
-                this.snake.push({ x: half, y: half });
-                this.snake.push({ x: half, y: half - 1 });
-                this.snake.push({ x: half, y: half - 2 });
+                for (let i = 0; i < this.length; i++) {
+                    this.snake.push({ x: half, y: half + i < this.size - 1 ? half + i : this.size - 1 });
+                }
 
-                // 遍历数组
-                for (let body of this.snake) {
-                    let location = body.y * this.size + body.x;
-                    // 给蛇的身体加上“cover”类属性
-                    this.$refs.span[location].classList.add('cover');
+                this.render();
+
+                this.start();
+            },
+            methods: {
+                render: function () {
+                    // 渲染蛇身
+                    for (let body of this.snake) {
+                        let location = body.y * this.size + body.x;
+                        // 给蛇的身体加上“cover”类属性
+                        this.$refs.span[location].classList.add('cover');
+                    }
+                },
+                start: function () {
+                    // 定时任务
+                    setInterval(() => {
+                        switch (this.direction) {
+                            case 'up': {
+                                // 计算下一步蛇头的位置
+                                let nextHead = { x: this.snake[0].x, y: this.snake[0].y - 1 < 0 ? this.size - 1 : this.snake[0].y - 1 };
+                                // 把新的头加到数组最前面
+                                this.snake.splice(0, 0, nextHead);
+                                let tail = this.snake.pop();
+                                this.$refs.span[tail.y * this.size + tail.x].classList.remove('cover');
+
+                                // 重新渲染
+                                this.render();
+                            }
+                        }
+                    }, 300);
+
                 }
             }
         });
