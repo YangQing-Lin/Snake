@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇小游戏</title>
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #snakeBoard {
+            text-align: center;
+        }
+
+        #snakeBoard span {
+            display: inline-block;
+            background-color: gray;
+            border: 1px solid green;
+            width: 40px;
+            height: 40px;
+        }
+
+        .cover {
+            background: brown !important;
+        }
+    </style>
+    <!-- 
+    1. 画一个活动区域
+    2. 画蛇的初始长度
+    3. 让蛇在一个方向动起来
+    4. 让蛇在四个方向动起来
+    5. 控制蛇在我们要的方向跑起来
+    6. 在活动区域内生成一个食物
+    -->
+
+    <div id="snakeBoard">
+        <div v-for="i in size">
+            <span v-for="j in size" ref="span"></span>
+        </div>
+    </div>
+
+
+    <script>
+        new Vue({
+            el: "#snakeBoard",
+            data: {
+                size: 10,
+                snake: [],
+            },
+            mounted: function () {
+                // 初始化一条蛇（4节）
+                let half = Math.floor(this.size / 2);
+                this.snake.push({ x: half, y: half + 1 });
+                this.snake.push({ x: half, y: half });
+                this.snake.push({ x: half, y: half - 1 });
+                this.snake.push({ x: half, y: half - 2 });
+
+                // 遍历数组
+                for (let body of this.snake) {
+                    let location = body.y * this.size + body.x;
+                    // 给蛇的身体加上“cover”类属性
+                    this.$refs.span[location].classList.add('cover');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
