@@ -23,18 +23,22 @@
 
         #snakeBoard span {
             display: inline-block;
-            background-color: gray;
-            border: 1px solid green;
+            background-color: rgb(198, 198, 198);
+            border: 1px solid black;
             width: 20px;
             height: 20px;
         }
 
         .cover {
-            background: cyan !important;
+            background-color: cyan !important;
         }
 
         .food {
-            background: brown !important;
+            background-color: brown !important;
+        }
+
+        .head {
+            background-color: rgb(52, 205, 52) !important;
         }
     </style>
     <!-- 
@@ -54,17 +58,19 @@
 
 
     <script>
-        new Vue({
+        let AI = new Vue({
             el: "#snakeBoard",
             data: {
                 size: 20,
                 length: 5,
-                timedelta: 150,
+                speed: 150,
+                timedelta: 5,
+                fastest: 50,
                 snake: [],
                 direction: "up",
                 food: {},
             },
-            mounted: function () {
+            mounted() {
                 // 初始化一条蛇
                 let half = Math.floor(this.size / 2);
                 for (let i = 0; i < this.length; i++) {
@@ -72,7 +78,7 @@
                 }
 
                 this.render();
-                this.start();
+                this.set1 = setInterval(this.start, this.speed);
                 this.generateFood();
 
                 // 添加键盘监听事件
@@ -102,68 +108,75 @@
                 });
             },
             methods: {
-                render: function () {
+                render() {
+                    // 清空上一个蛇头的样式
+                    let prevHead = this.snake[1];
+                    this.$refs.span[prevHead.y * this.size + prevHead.x].classList.remove('head');
                     // 渲染蛇身
                     for (let body of this.snake) {
                         // 给蛇的身体加上“cover”类属性
                         this.$refs.span[body.y * this.size + body.x].classList.add('cover');
                     }
+                    // 为当前蛇头添加样式
+                    let head = this.snake[0];
+                    this.$refs.span[head.y * this.size + head.x].classList.add('head');
                 },
-                start: function () {
-                    // 定时任务
-                    setInterval(() => {
-                        let nextHead = {};
-                        let head = this.snake[0];
-                        // 计算当前方向的下一个蛇头位置
-                        switch (this.direction) {
-                            case "up": {
-                                // 计算下一步蛇头的位置
-                                nextHead = { x: head.x, y: head.y - 1 < 0 ? this.size - 1 : head.y - 1 };
+                start() {
+                    let nextHead = {};
+                    let head = this.snake[0];
+                    // 计算当前方向的下一个蛇头位置
+                    switch (this.direction) {
+                        case "up": {
+                            // 计算下一步蛇头的位置
+                            nextHead = { x: head.x, y: head.y - 1 < 0 ? this.size - 1 : head.y - 1 };
+                        } break;
+                        case "down": {
+                            nextHead = { x: head.x, y: head.y + 1 > this.size - 1 ? 0 : head.y + 1 };
+                        } break;
+                        case "left": {
+                            nextHead = { x: head.x - 1 < 0 ? this.size - 1 : head.x - 1, y: head.y };
+                        } break;
+                        case "right": {
+                            nextHead = { x: head.x + 1 > this.size - 1 ? 0 : head.x + 1, y: head.y };
+                        } break;
+                    }
 
-                            } break;
-                            case "down": {
-                                nextHead = { x: head.x, y: head.y + 1 > this.size - 1 ? 0 : head.y + 1 };
-                            } break;
-                            case "left": {
-                                nextHead = { x: head.x - 1 < 0 ? this.size - 1 : head.x - 1, y: head.y };
-                            } break;
-                            case "right": {
-                                nextHead = { x: head.x + 1 > this.size - 1 ? 0 : head.x + 1, y: head.y };
-                            } break;
-                        }
+                    // 把新的头加到数组最前面
+                    this.snake.splice(0, 0, nextHead);
 
-                        // 把新的头加到数组最前面
-                        this.snake.splice(0, 0, nextHead);
+                    // 蛇头和食物的碰撞检测
+                    if (nextHead.x === this.food.x && nextHead.y === this.food.y) {
+                        this.$refs.span[this.food.y * this.size + this.food.x].classList.remove('food');
+                        // 更新蛇长度
+                        this.length += 1;
+                        // 增加蛇的速度
+                        this.speed = this.speed - this.timedelta < this.fastest ? this.speed : this.speed - this.timedelta;
+                        this.generateFood();
+                    } else {
+                        // 移除尾巴并清空尾巴的样式
+                        let tail = this.snake.pop();
+                        this.$refs.span[tail.y * this.size + tail.x].classList.remove('cover');
+                    }
 
-                        // 蛇头和食物的碰撞检测
-                        if (nextHead.x === this.food.x && nextHead.y === this.food.y) {
-                            this.$refs.span[this.food.y * this.size + this.food.x].classList.remove('food');
-                            this.length += 1;
-                            this.generateFood();
-                        } else {
-                            // 移除尾巴并清空尾巴的样式
-                            let tail = this.snake.pop();
-                            this.$refs.span[tail.y * this.size + tail.x].classList.remove('cover');
-                        }
+                    // 自动进食的AI
+                    if (nextHead.x > this.food.x) {
+                        this.direction = "left";
+                    } else if (nextHead.x < this.food.x) {
+                        this.direction = "right";
+                    } else if (nextHead.y > this.food.y) {
+                        this.direction = "up";
+                    } else if (nextHead.y < this.food.y) {
+                        this.direction = "down";
+                    }
 
-                        // 自动进食的AI
-                        if (nextHead.x > this.food.x) {
-                            this.direction = "left";
-                        } else if (nextHead.x < this.food.x) {
-                            this.direction = "right";
-                        } else if (nextHead.y > this.food.y) {
-                            this.direction = "up";
-                        } else if (nextHead.y < this.food.y) {
-                            this.direction = "down";
-                        }
+                    // 重新渲染
+                    this.render();
 
-                        // 重新渲染
-                        this.render();
-                    }, this.timedelta);
-
+                    clearInterval(this.set1);
+                    this.set1 = setInterval(this.start, this.speed);
                 },
                 // 生成食物（不会生成在蛇身上）
-                generateFood: function () {
+                generateFood() {
                     let flag = true;
                     while (flag) {
                         flag = false;
