@@ -1,5 +1,7 @@
 # 贪吃蛇小游戏
 
+学习自B站https://www.bilibili.com/video/BV17o4y1C7uk
+
 更新日志
 
 **4-29**
